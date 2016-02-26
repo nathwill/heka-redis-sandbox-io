@@ -20,6 +20,7 @@ Config:
     [RedisOutput]
     type = "SandboxOutput"
     filename = "lua_outputs/redis.lua"
+    module_directory = "/usr/share/heka/lua_modules;/usr/share/heka/lua_io_modules"
     message_matcher = "Type == 'logfile'"
     ticker_interval = 5
 

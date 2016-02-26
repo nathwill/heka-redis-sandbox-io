@@ -19,6 +19,7 @@ Config:
     [RedisInput]
     type = "SandboxInput"
     filename = "lua_inputs/redis.lua"
+    module_directory = "/usr/share/heka/lua_modules;/usr/share/heka/lua_io_modules"
 
     [RedisInput.config]
     server = "127.0.0.1"
