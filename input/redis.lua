@@ -26,9 +26,8 @@ Config:
     queue = "my-queue"
 --]]
 
-require "string"
-require "table"
-
+local string = require "string"
+local table = require "table"
 local redis = require "redis"
 
 local msg = {
