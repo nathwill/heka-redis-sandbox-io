@@ -9,7 +9,7 @@ Config:
 
 - server (string)
 - port (uint)
-- queue (string)
+- channel (string)
 - max_messages (uint)
 - flush_interval (uint)
 
@@ -26,7 +26,7 @@ Config:
     [RedisOutput.config]
     server = "127.0.0.1"
     port = 6379
-    queue = "my-queue"
+    channel = "heka-output"
     max_messages = 20
     flush_interval = 10
 --]]
@@ -40,11 +40,11 @@ local redis = require "redis"
 
 -- set up configuration
 local cfg = {
-    Server  = read_config("server") or "127.0.0.1",
-    Port    = read_config("port") or 6379,
-    Queue   = read_config("queue") or "heka",
-    MaxMsgs = read_config("max_messages") or 1,
-    MaxTime = read_config("flush_interval") or 5,
+    Server    = read_config("server") or "127.0.0.1",
+    Port      = read_config("port") or 6379,
+    Channel   = read_config("channel") or "heka",
+    MaxMsgs   = read_config("max_messages") or 1,
+    MaxTime   = read_config("flush_interval") or 5,
 }
 
 -- validate configuration
@@ -72,7 +72,7 @@ msgs = {}
 
 function bulk_load()
     if unpack(msgs) then
-        local res = client:rpush(cfg.Queue, unpack(msgs))
+        local res = client:rpush(cfg.Channel, unpack(msgs))
         if res then
             msgs = {}; count = 0; last_flush = os.time() * 1e9
         else

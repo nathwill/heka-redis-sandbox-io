@@ -9,7 +9,7 @@ Config:
 
 - server (string)
 - port (uint)
-- queue (string)
+- channel (string)
 - timeout (uint)
 
 *Example Heka Configuration*
@@ -23,7 +23,7 @@ Config:
     [RedisInput.config]
     server = "127.0.0.1"
     port = 6379
-    queue = "my-queue"
+    channel = "heka-input"
 --]]
 
 local string = require "string"
@@ -36,10 +36,10 @@ local msg = {
 }
 
 local cfg = {
-    Server  = read_config("server") or "127.0.0.1",
-    Port    = read_config("port") or 6379,
-    Queue   = read_config("queue") or "heka",
-    Timeout = read_config("timeout") or 5,
+    Server    = read_config("server") or "127.0.0.1",
+    Port      = read_config("port") or 6379,
+    Channel   = read_config("channel") or "heka",
+    Timeout   = read_config("timeout") or 5,
 }
 
 assert(cfg.Port > 0, "port must be greater than zero")
@@ -52,7 +52,7 @@ end
 
 function process_message()
     repeat
-        local elem = client:blpop(cfg.Queue, cfg.Timeout)
+        local elem = client:blpop(cfg.Channel, cfg.Timeout)
 
         if elem then
             msg.Payload = elem[2]
