@@ -80,7 +80,7 @@ function bulk_load()
 end
 
 function process_message()
-    local msg = decode_message(read_message("raw"))
+    msg = decode_message(read_message("raw"))
     table.insert(msgs, cjson.encode(msg))
 
     count = count + 1; msg = {}
