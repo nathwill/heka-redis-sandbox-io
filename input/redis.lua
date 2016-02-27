@@ -47,11 +47,12 @@ assert(cfg.Port > 0, "port must be greater than zero")
 assert(cfg.Timeout >= 0, "port must be >= zero")
 
 local client = redis.connect(cfg.Server, cfg.Port)
-if not client:ping() then
-    return 1, "Redis connection failed."
-end
 
 function process_message()
+    if not client:ping() then
+        return 1, "Redis connection failed."
+    end
+
     repeat
         local elem = client:blpop(cfg.Channel, cfg.Timeout)
 

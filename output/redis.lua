@@ -58,10 +58,6 @@ cfg.MaxTime = cfg.MaxTime * 1e9
 -- set up connection to redis
 local client = redis.connect(cfg.Server, cfg.Port)
 
-if not client:ping() then
-    return 1, "Redis connection failed."
-end
-
 -- track state
 local msg = {}
 local count = 0
@@ -69,7 +65,6 @@ local last_flush = 0
 
 -- persist msg buffer
 msgs = {}
-
 
 function bulk_load()
     if unpack(msgs) then
@@ -98,6 +93,10 @@ function process_message()
 end
 
 function timer_event(ns)
+    if not client:ping() then
+        return 1, "Redis connection failed."
+    end
+
     if ns - last_flush >= cfg.MaxTime then
         bulk_load()
     end
