@@ -3,15 +3,28 @@
 -- file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 --[[
-Example Redis database message loader.
+Pushes message onto a Redis list.
+Supports bulk loading and optional json encoding.
 
 Config:
 
-- server (string)
-- port (uint)
-- channel (string)
-- max_messages (uint)
-- flush_interval (uint)
+- server (string, optional, default "127.0.0.1")
+  Specify the redis host to connect to.
+
+- port (uint, optional, default 6379)
+  Specify the port redis is listening on.
+
+- channel (string, optional, default "heka")
+  Specify the list key to RPUSH messages to.
+
+- max_messages (uint, optional, default 1)
+  Specify the maximum number of messages to buffer for bulk loading.
+
+- flush_interval (uint, optional, default 5)
+  Specify the maximum number of seconds between bulk loads.
+
+- encoding (string, optional, default "raw")
+  Specify either "raw" or "json" message encoding.
 
 *Example Heka Configuration*
 
@@ -30,6 +43,7 @@ Config:
     channel = "heka-output"
     max_messages = 20
     flush_interval = 10
+    encoding = "json"
 --]]
 
 -- load modules
@@ -46,6 +60,7 @@ local cfg = {
     Channel   = read_config("channel") or "heka",
     MaxMsgs   = read_config("max_messages") or 1,
     MaxTime   = read_config("flush_interval") or 5,
+    Encoding  = read_config("encoding") or "raw"
 }
 
 -- validate configuration
@@ -55,38 +70,52 @@ assert(cfg.MaxTime > 0, "flush_interval must be greater than zero")
 -- normalize time to ns
 cfg.MaxTime = cfg.MaxTime * 1e9
 
--- set up connection to redis
-local client = redis.connect(cfg.Server, cfg.Port)
-
 -- track state
-local msg = {}
+local msg = ""
 local count = 0
 local last_flush = 0
 
 -- persist msg buffer
-msgs = {}
+msg_buffer = {}
+
+-- establish redis connection
+local ok, client = pcall(function()
+  return redis.connect(cfg.Server, cfg.Port)
+end)
+
+assert(ok, "Redis connection must be successful.")
 
 function bulk_load()
-    if unpack(msgs) then
-        local res = client:rpush(cfg.Channel, unpack(msgs))
-        if res then
-            msgs = {}; count = 0; last_flush = os.time() * 1e9
+    -- load messages
+    unpacked = unpack(msg_buffer)
+
+    if unpacked then
+        local _, ok = pcall(function()
+            return client:rpush(cfg.Channel, unpacked)
+        end)
+        if ok then
+            msg_buffer = {}; count = 0; last_flush = os.time() * 1e9
         else
-            return 1, "Failed to push messages."
+            error("failed to load messages")
         end
     end
-
-    return 0
 end
 
 function process_message()
-    msg = decode_message(read_message("raw"))
-    table.insert(msgs, cjson.encode(msg))
+    local msg = read_message("raw")
 
-    count = count + 1; msg = {}
+    if cfg.Encoding == "json" then
+        msg = cjson.encode(decode_message(msg))
+    end
+
+    table.insert(msg_buffer, msg)
+
+    count = count + 1; msg = ""
 
     if count >= cfg.MaxMsgs then
-        return bulk_load()
+        if not pcall(bulk_load) then
+            return -1, "Error loading messages."
+        end
     end
 
     return 0
@@ -94,7 +123,7 @@ end
 
 function timer_event(ns)
     if not client:ping() then
-        return 1, "Redis connection failed."
+        error("Redis not responding.")
     end
 
     if ns - last_flush >= cfg.MaxTime then
