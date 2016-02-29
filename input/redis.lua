@@ -94,7 +94,7 @@ function process_message()
             msg.Logger, msg.Payload = "redis."..retval[1], retval[2]
 
             if cfg.Encoding == "json" then
-                local ok, json = pcall(cjson.decode, retval[2])
+                local ok, json = pcall(cjson.decode, msg.Payload)
                 if not ok then
                     return -1, "Failed to decode message."
                 end
