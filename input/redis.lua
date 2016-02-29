@@ -89,18 +89,16 @@ function process_message()
         if not ok then return -1, "BLPOP returned error." end
 
         if type(retval) == 'table' then
-            msg.Logger = "redis."..retval[1]
+            msg.Logger, msg.Payload = "redis."..retval[1], retval[2]
 
             if cfg.Encoding == "json" then
-                local ok, json = pcall(cjson.decode, retval[2])
+                local ok, msg.Payload = pcall(cjson.decode, msg.Payload)
                 if not ok then
                     return -1, "Failed to decode message."
                 end
 
-                msg.Fields = json
+                if not cfg.Keep then msg.Payload = nil end
             end
-
-            if cfg.Keep then msg.Payload = retval[2] end
 
             if not pcall(inject_message, msg) then
                 return -1, "Failed to inject message."
