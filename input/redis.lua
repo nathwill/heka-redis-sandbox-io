@@ -27,6 +27,7 @@ Config:
 
 - payload_keep(bool, optional, default true)
   Whether to preserve the original message payload.
+  Only applied if json decoding is enabled.
 
 *Example Heka Configuration*
 

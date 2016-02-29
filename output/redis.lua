@@ -93,6 +93,7 @@ function bulk_load()
         local _, ok = pcall(function()
             return client:rpush(cfg.Channel, unpacked)
         end)
+
         if ok then
             msg_buffer = {}; count = 0; last_flush = os.time() * 1e9
         else
