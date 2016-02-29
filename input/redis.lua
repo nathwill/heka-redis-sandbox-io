@@ -25,7 +25,7 @@ Config:
   and assign the resulting table to the Fields
   variable of the heka message.
 
-- payload_keep(bool, optional, default true)
+- payload_keep(bool, optional, default false)
   Whether to preserve the original message payload.
   Only applied if json decoding is enabled.
 
@@ -62,7 +62,7 @@ local cfg = {
     Channel   = read_config("channel") or "heka",
     Timeout   = read_config("timeout") or 5,
     Encoding  = read_config("encoding") or "raw",
-    Keep      = read_config("payload_keep") or true,
+    Keep      = read_config("payload_keep"),
 }
 
 assert(cfg.Port > 0, "port must be greater than zero")
@@ -100,6 +100,7 @@ function process_message()
                 end
 
                 msg.Fields = json
+
                 if not cfg.Keep then msg.Payload = "" end
             end
 
