@@ -60,7 +60,7 @@ local cfg = {
     Channel   = read_config("channel") or "heka",
     MaxMsgs   = read_config("max_messages") or 1,
     MaxTime   = read_config("flush_interval") or 5,
-    Encoding  = read_config("encoding") or "raw"
+    Encoding  = read_config("encoding") or "raw",
 }
 
 -- validate configuration

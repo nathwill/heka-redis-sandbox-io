@@ -53,6 +53,7 @@ local redis = require "redis"
 local msg = {
     Type    = "redis",
     Payload = "",
+    Fields = {},
 }
 
 local cfg = {
@@ -93,19 +94,20 @@ function process_message()
             msg.Logger, msg.Payload = "redis."..retval[1], retval[2]
 
             if cfg.Encoding == "json" then
-                local ok, msg.Payload = pcall(cjson.decode, msg.Payload)
+                local ok, json = pcall(cjson.decode, retval[2])
                 if not ok then
                     return -1, "Failed to decode message."
                 end
 
-                if not cfg.Keep then msg.Payload = nil end
+                msg.Fields = json
+                if not cfg.Keep then msg.Payload = "" end
             end
 
             if not pcall(inject_message, msg) then
                 return -1, "Failed to inject message."
             end
 
-            msg.Payload = ""; msg.Fields = nil
+            msg.Fields = {}
         else
             if not client:ping() then
                 return -1, "Redis not responding."
