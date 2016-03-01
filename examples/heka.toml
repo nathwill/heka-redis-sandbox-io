@@ -1,0 +1,26 @@
+[hekad]
+base_dir = '/tmp/heka'
+
+[redis_input]
+type = 'SandboxInput'
+filename = 'lua_inputs/redis.lua'
+module_directory = '/usr/share/heka/lua_modules;/usr/share/heka/lua_io_modules'
+
+[redis_input.config]
+channel = 'heka-input'
+
+[RstEncoder]
+
+[LogOutput]
+message_matcher = "TRUE"
+encoder = 'RstEncoder'
+
+[redis_output]
+type = 'SandboxOutput'
+filename = 'lua_outputs/redis.lua'
+module_directory = '/usr/share/heka/lua_modules;/usr/share/heka/lua_io_modules' 
+message_matcher = "TRUE"
+
+[redis_output.config]
+channel = 'heka-output'
+encoding = 'json'
