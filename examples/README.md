@@ -1,6 +1,6 @@
 Running the example configuration included here produces the following output:
 
-Plugins startig up:
+Plugins starting up:
 
 ```bash
 [nathwill@wyrdish ~]$ hekad -config=heka.toml
