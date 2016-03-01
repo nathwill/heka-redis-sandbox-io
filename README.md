@@ -1,7 +1,7 @@
 Mozilla Heka Sandbox{Input,Output} Redis plugins
 ================================================
 
-heka plugins using the excellent [redis-lua](https://github.com/nrk/redis-lua) plugin.
+heka plugins using the excellent [redis-lua](https://github.com/nrk/redis-lua) module.
 
 note that this plugin intentionally uses list-key paradigms instead of PUB/SUB,
 as most queue workers in the ruby world tend to work this way.
