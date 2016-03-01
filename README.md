@@ -8,10 +8,10 @@ as most queue workers in the ruby world tend to work this way.
 
 Usage Instructions
 ------------------
-Copy plugins to the appropriate directory: `inputs/redis.lua` to `${SHARE_PATH}/lua_inputs`,
-`outputs/redis.lua` to `${SHARE_PATH}/lua_outputs`, and `modules/redis.lua` to 
+Copy plugins to the appropriate directory: `input/redis.lua` to `${SHARE_PATH}/lua_inputs`,
+`output/redis.lua` to `${SHARE_PATH}/lua_outputs`, and `modules/redis.lua` to 
 `${SHARE_PATH}/lua_modules`. 
 
 Read the in-plugin documentation for configuration options. In particular, note the need
-to adjust the `module_path` Sandbox directive, in order for the redis module to be able to
-locate the `socket` module in the load_path.
+to adjust the `module_path` Sandbox directive, which is needed for the redis module to be
+able to locate the `socket` module in the lua load_path.
