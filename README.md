@@ -1,5 +1,5 @@
-lua Sandbox{Input,Output} redis plugins for Mozilla Heka
-========================================================
+Mozilla Heka Sandbox{Input,Output} Redis plugins
+================================================
 
 heka plugins using the excellent [redis-lua](https://github.com/nrk/redis-lua) plugin.
 
